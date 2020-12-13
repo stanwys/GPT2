@@ -29,7 +29,6 @@ class MLP(tf.keras.layers.Layer):
     def gelu(self, x):
         return 0.5 * x * (1 + tf.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * tf.pow(x, 3))))
 
-    #x, scope, n_state, *, hparams)
     def call(self, input, **kwargs):
         x = input
         x = self.conv_1(x)
