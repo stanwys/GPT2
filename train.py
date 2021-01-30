@@ -64,7 +64,7 @@ def train(
             with tf.GradientTape() as tape:
 
                 out = model(context_tensor, past=None)
-                loss = loss_function(context_tensor, out['logits'])
+                loss = loss_function(context_tensor[:,1:], out['logits'][:,:-1,:])
 
                 '''
                 #batch in form of for loop to solve problems with lack of memory
