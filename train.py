@@ -23,6 +23,8 @@ def train(
         n_layers = 12,
         weights_path_read = "./weights/checkpoint",
         weights_path_write = "./weights/checkpoint",
+        save_training_results_path = "./results/training.txt",
+        save_training_results_every = 5,
         show_every = 10):
 
     hparams = default_hparams()
@@ -48,6 +50,10 @@ def train(
     print("Num of iterations per epoch: ", num_iterations_in_epoch)
     print("Batch size: ", batch_size)
     print("Sequence length(in tokens): ", num_tokens)
+    f = open(save_training_results_path, mode='w')
+    f.write("iteration;avg_loss\n")
+    f.close()
+    avg_losses = []
 
     counter = 0
     for epoch in range(num_epochs):
@@ -88,7 +94,14 @@ def train(
                         time=time.time() - start_time,
                         loss=loss,
                         avg=avg_loss[0] / avg_loss[1]))
+
+            if(counter % save_training_results_every == 0):
+                f = open(save_training_results_path, mode='a')
+                f.write("{counter};{avg:2.2f}\n".format(counter=(counter+1), avg=avg_loss[0] / avg_loss[1]))
+                f.close()
+
             counter += 1
+
             if((counter) % save_model_every_num_iter == 0 and save_weights == True):
                 model.save_weights(weights_path_write)
                 print("Model weights saved")
@@ -108,7 +121,9 @@ if __name__ == "__main__":
     p_weights_path_read = sys.argv[9]#"./weights/checkpoint",
     p_weights_path_write = sys.argv[10]#"./weights/checkpoint",
     p_input_path = sys.argv[11]#"data/small-117Mtest.txt",
-    p_show_every = int(sys.argv[12])
+    p_save_training_results_path = sys.argv[12]
+    p_save_training_results_every = int(sys.argv[13])
+    p_show_every = int(sys.argv[14])
     train(batch_size=p_batch_size,
           num_epochs=p_num_epochs,
           learning_rate=p_learning_rate,
@@ -120,4 +135,6 @@ if __name__ == "__main__":
           weights_path_read=p_weights_path_read,
           weights_path_write=p_weights_path_write,
           input_path=p_input_path,
+          save_training_results_path = p_save_training_results_path,
+          save_training_results_every = p_save_training_results_every,
           show_every=p_show_every)#batch_size= batch_size, save_weights = save_weights)
