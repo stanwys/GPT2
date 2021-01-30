@@ -44,17 +44,23 @@ def my_load_dataset(enc, path, combine):
             # Plain text
             with open(path, 'r', encoding="utf8") as fp:
                 lines = fp.readlines()
+            raw_tokens = []
             for line in lines:
-                raw_text += line.replace('\n','')
+                this_text = line.replace('\n','')
+                raw_text += this_text
+                raw_tokens += enc.encode(this_text)
+                #each line is a seperate text
+                raw_tokens += [enc.encoder['<|endoftext|>']]
                 if len(raw_text) >= combine:
-                    tokens = np.stack(enc.encode(raw_text))
+                    tokens = np.stack(raw_tokens)
                     token_chunks.append(tokens)
                     raw_text = ''
-                else:
-                    raw_text += '<|endoftext|>'
+                    raw_tokens = []
+                #else:
+                #    raw_text += '<|endoftext|>'
 
     if raw_text:
-        tokens = np.stack(enc.encode(raw_text))
+        tokens = np.stack(raw_tokens)
         token_chunks.append(tokens)
     return token_chunks
 

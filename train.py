@@ -38,24 +38,27 @@ def train(
 
     num_iterations_in_epoch = data_sampler.total_size // (num_tokens * batch_size)
 
-    #loss_function = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    loss_function = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     avg_loss = (0.0, 0.0)
     start_time = time.time()
     print("Total epochs: ",num_epochs)
     print("Num of iterations per epoch: ", num_iterations_in_epoch)
+    print("Batch size: ", batch_size)
+    print("Sequence length(in tokens): ", num_tokens)
 
     counter = 0
     for epoch in range(num_epochs):
         print("Epoch: ",epoch)
         for iteration in range(num_iterations_in_epoch):
-            #batch = getBatch(data_sampler, batch_size, num_tokens)
-            #context_tensor = tf.reshape(tf.convert_to_tensor(batch, dtype=tf.int64), (batch_size, num_tokens))
+            batch = getBatch(data_sampler, batch_size, num_tokens)
+            context_tensor = tf.reshape(tf.convert_to_tensor(batch, dtype=tf.int64), (batch_size, num_tokens))
             with tf.GradientTape() as tape:
-                '''
+
                 out = model(context_tensor, past=None)
                 loss = loss_function(context_tensor, out['logits'])
+
                 '''
                 #batch in form of for loop to solve problems with lack of memory
                 tensors = []
@@ -64,11 +67,12 @@ def train(
                     tokens = getBatch(data_sampler, 1, num_tokens)
                     context_tensor = tf.reshape(tf.convert_to_tensor(tokens, dtype=tf.int64), (1, num_tokens))
                     out = model(context_tensor, past=None)
-                    loss_tmp = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=context_tensor,logits=out["logits"])
+                    loss_tmp = tf.nn.sparse_softmax_cross_entropy_with_logits(
+                        labels=context_tensor,logits=out["logits"])
                     tensors.append(loss_tmp)
 
                 loss = tf.reduce_mean(tf.stack(tensors, axis = 1))
-
+                '''
             gradients = tape.gradient(loss, model.trainable_variables)
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
