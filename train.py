@@ -91,8 +91,10 @@ def train(
             counter += 1
             if((counter) % save_model_every_num_iter == 0 and save_weights == True):
                 model.save_weights(weights_path_write)
+                print("Model weights saved")
 
     model.save_weights(weights_path_write)
+    print("Model weights saved")
 
 if __name__ == "__main__":
     p_batch_size = int(sys.argv[1])
