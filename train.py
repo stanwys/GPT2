@@ -46,11 +46,11 @@ def train(
     print("Total epochs: ",num_epochs)
     print("Num of iterations per epoch: ", num_iterations_in_epoch)
 
-
+    counter = 0
     for epoch in range(num_epochs):
         print("Epoch: ",epoch)
         for iteration in range(num_iterations_in_epoch):
-            batch = getBatch(data_sampler, batch_size, num_tokens)
+            #batch = getBatch(data_sampler, batch_size, num_tokens)
             #context_tensor = tf.reshape(tf.convert_to_tensor(batch, dtype=tf.int64), (batch_size, num_tokens))
             with tf.GradientTape() as tape:
                 '''
@@ -59,7 +59,9 @@ def train(
                 '''
                 #batch in form of for loop to solve problems with lack of memory
                 tensors = []
-                for tokens in batch:
+                #for tokens in batch:
+                for _ in range(batch_size):
+                    tokens = getBatch(data_sampler, 1, num_tokens)
                     context_tensor = tf.reshape(tf.convert_to_tensor(tokens, dtype=tf.int64), (1, num_tokens))
                     out = model(context_tensor, past=None)
                     loss_tmp = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=context_tensor,logits=out["logits"])
@@ -81,9 +83,11 @@ def train(
                     time=time.time() - start_time,
                     loss=loss,
                     avg=avg_loss[0] / avg_loss[1]))
-
-            if((iteration+1) % save_model_every_num_iter == 0 and save_weights == True):
+            counter += 1
+            if((counter) % save_model_every_num_iter == 0 and save_weights == True):
                 model.save_weights(weights_path_write)
+
+    model.save_weights(weights_path_write)
 
 if __name__ == "__main__":
     p_batch_size = int(sys.argv[1])
