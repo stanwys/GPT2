@@ -9,12 +9,12 @@ class GPT2Model(Model):
 
         self.positional_encoding_weights = tf.Variable(tf.random.normal((hparams.context_length[0],
                                                                         hparams.embeding_size[0]),
-                                                                        stddev=0.01,
-                                                                        name= 'pos_enc'))
+                                                                        stddev=0.01
+                                                                        ),name= 'pos_enc')
 
         self.word_embedding_weights = tf.Variable(tf.random.normal((hparams.vocab_size[0],
                                                                     hparams.embeding_size[0]),
-                                                                    stddev=0.02, name = 'word_emb'))
+                                                                    stddev=0.02),name = 'word_emb')
 
         self.decoder_blocks = self.initDecoderBlocks(hparams)
         self.norm_layer = LayerNormalization()

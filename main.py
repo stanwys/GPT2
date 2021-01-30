@@ -40,6 +40,15 @@ def generate_words(temperature, top_k, output_sequence_length, save_weights):
     for i in range(final_sequence_length - start_sequence_size):
         out = model.call(previous, past=past)
         logits = out['logits'][:, -1, :] / tf.cast(temperature,tf.float32)
+
+        logits2 = out['logits'][:, :-1,:]
+        ct2 = out_tensor[:, 1:]
+        loss = tf.reduce_mean(
+            tf.nn.sparse_softmax_cross_entropy_with_logits(
+                labels=out_tensor[:, 1:], logits=out['logits'][:, :-1]))
+
+        print(loss)
+
         logits = top_k_logits(logits, k=top_k)
         samples = tf.random.categorical(logits, num_samples=1)
 

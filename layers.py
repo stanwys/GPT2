@@ -6,10 +6,24 @@ from utils import shape_list
 class Convolution1D(tf.keras.layers.Layer):
     def __init__(self, nx, nf, w_init_stdev = 0.02):
         super(Convolution1D, self).__init__()
-        self.w = tf.Variable(tf.random.normal((1, nx, nf),stddev=w_init_stdev, name='w'))
-        self.b = tf.Variable(tf.constant(0.0, shape = [nf], name = 'b', dtype=tf.float32))
+        #self.w = tf.Variable(tf.random.normal((1, nx, nf),stddev=w_init_stdev),name='conv_1d/w')
+        #self.b = tf.Variable(tf.constant(0.0, shape = [nf], dtype=tf.float32), name = 'conv_1d/b')
         self.nf = nf
         self.nx = nx
+        self.w_init_stdev = w_init_stdev
+
+    def build(self, input_shape):
+        self.w = self.add_weight(
+            "cov1d_weight",
+            shape = [1, self.nx, self.nf],
+            dtype = tf.float32,
+            initializer = tf.random_normal_initializer(
+            stddev=self.w_init_stdev,
+            mean=0.0),trainable=True)
+        self.b = self.add_weight("conv1d_bias",
+                                    shape=[self.nf],
+                                    initializer=tf.constant_initializer(0.0),trainable=True)
+        super(Convolution1D, self).build(input_shape)
 
     def call(self, input, **kwargs):
         x = input
@@ -91,11 +105,11 @@ class Attention(tf.keras.layers.Layer):
         # Reverse of split_heads
         return self.merge_states(tf.transpose(x, [0, 2, 1, 3]))
 
-    def call(self, input, **kwargs):
-        x = input
+    def call(self, x, **kwargs):
+
         past = kwargs['past']
-        c = self.conv_1(x)
-        q, k, v = map(self.split_heads, tf.split(c, 3, axis=2))
+        x = self.conv_1(x)
+        q, k, v = map(self.split_heads, tf.split(x, 3, axis=2))
         present = tf.stack([k, v], axis=1)
         if past is not None:
             pk, pv = tf.unstack(past, axis=1)
@@ -103,6 +117,6 @@ class Attention(tf.keras.layers.Layer):
             v = tf.concat([pv, v], axis=-2)
         a = self.multihead_attn(q, k, v)
         a = self.merge_heads(a)
-        a = self.conv_2(x)
+        a = self.conv_2(a)
         return a, present
 

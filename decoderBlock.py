@@ -17,7 +17,7 @@ class DecoderBlock(tf.keras.layers.Layer):
     def call(self, inputs, **kwargs):
         x = inputs
         x_norm_1 = self.norm_layer1(x)
-        a, present = self.attention_layer(input = x_norm_1, past = kwargs['past'])
+        a, present = self.attention_layer(x = x_norm_1, past = kwargs['past'])
         x = x + a
         x_norm_2 = self.norm_layer2(x)
         m = self.mlp_layer(x_norm_2)
