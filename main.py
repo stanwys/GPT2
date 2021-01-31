@@ -60,7 +60,6 @@ def generate_words(temperature, top_k, output_sequence_length, save_weights):
 
 
 if __name__ == "__main__":
-    
     temperature = int(sys.argv[1])
     top_k = int(sys.argv[2])
     output_sequence_length = int(sys.argv[3])

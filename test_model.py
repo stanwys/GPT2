@@ -18,6 +18,7 @@ def test_model(dataset_input_path,
     top_k = 1
     correct_answers = 0
     given_answers = {}
+    given_correct_answers = {}
 
     for index in range(test_data['num_examples']):
         if (index % 100 == 0):
@@ -44,6 +45,10 @@ def test_model(dataset_input_path,
                 given_answers[sample_token] = 1
             if (sample_token in test_data['answers'][index]):
                 correct_answers += 1
+                if sample_token in given_correct_answers.keys():
+                    given_correct_answers[sample_token] += 1
+                else:
+                    given_correct_answers[sample_token] = 1
 
         elif (mode == "CBT"):
             best_sum = -np.inf
@@ -63,9 +68,16 @@ def test_model(dataset_input_path,
     f = open(results_output_path, mode=results_output_mode)
     if results_output_mode == 'w':
         f.write("temperature;top_k;acc\n")
-    f.write("{temp};{k};{acc:2.2f}".format(temp=1, k=1, acc=correct_answers/test_data['num_examples']))
+    f.write("{temp};{k};{acc:0.4f}\n".format(temp=1, k=1, acc=correct_answers/test_data['num_examples']))
+    f.write("Given answers\n")
+    f.write("token;quantity\n")
+    for key in given_answers.keys():
+        f.write("{token};{qty}\n".format(token=key,qty = given_answers[key]))
+    f.write("Given correct answers\n")
+    f.write("token;quantity\n")
+    for key in given_correct_answers.keys():
+        f.write("{token};{qty\n}".format(token=key,qty = given_answers[key]))
     f.close()
-
 
 if __name__ == "__main__":
     p_mode = sys.argv[1]
