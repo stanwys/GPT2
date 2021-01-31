@@ -1,1 +1,5 @@
 Directory for information about average loss during training
+Total epochs:  3
+Num of iterations per epoch:  82177
+Batch size:  8
+Sequence length(in tokens):  256
